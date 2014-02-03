@@ -1,0 +1,23 @@
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span2">
+      <!--Sidebar content-->
+
+
+    </div>
+    <div class="span10">
+      <!--Body content-->
+
+      Current Time In:
+      <select data-ng-model="tzone">
+        <option value="">Local Time</option>
+        <option data-ng-repeat="tz in tzones">{{tz.tzone}}</option>
+      </select>
+
+      <p data-ng->
+      The time is: {{currentTime.time | date:"yyyy-MM-dd HH:mm:ss.sss"}} in {{currentTime.tz}}
+      </p>
+
+    </div>
+  </div>
+</div>

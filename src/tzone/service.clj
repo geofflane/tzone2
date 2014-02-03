@@ -14,7 +14,7 @@
 
 (defn home-page
   [request]
-  (ring-resp/response "Hello World!"))
+  (ring-resp/redirect "index.html"))
 
 (def format-str "yyyy-MM-dd'T'HH:mm:ss.SSSS")
 
@@ -30,14 +30,17 @@
   [t tz]
   (tf/parse (tf/formatter format-str tz) t))
 
+(defn tzones [reques]
+  (bootstrap/json-response (map (fn [v] {"tzone" v}) (org.joda.time.DateTimeZone/getAvailableIDs))))
+
 (defn current-time
-  [{:keys [to] :params}]
+  [{{:keys [to]} :params}]
   (let [tz (t/time-zone-for-id to)
         new-time (now-in-tz tz)]
     (bootstrap/json-response {:tz to :time (time-str new-time tz)})))
 
 (defn convert-time
-  [{:keys [to from time] :params}]
+  [{{:keys [to from time]} :params}]
   (let [totz (t/time-zone-for-id to)
         fromtz (t/time-zone-for-id from)
         new-time (str-time time fromtz)]
@@ -63,20 +66,17 @@
     (println "ApiKey used: " api-key)
     context))
 
-;; (defn convert-tzones [params]
-;;   (io.pedestal.service.interceptor/interceptor
-;;    :name ::convert-tzones
-;;    :enter
-;;    (fn [context]
-;;      (doseq [p params]
-;;        (update-in context [:request :params p] t/time-zone-for-id)))))
-
 (defroutes routes
   [[["/" {:get home-page}
      ;; Set default interceptors for /about and any other paths under /
-     ^:interceptors [(body-params/body-params) with-api-key record-usage bootstrap/html-body]
-     ["/convertCurrent" {:get current-time}]
-     ["/convertTime" {:get convert-time}]]]])
+     ^:interceptors [(body-params/body-params) bootstrap/html-body]
+     ["/tzone" {:get tzones}]
+     ["/convertCurrent"
+      ^:interceptors [with-api-key record-usage]
+      {:get current-time}]
+     ["/convertTime"
+      ^:interceptors [with-api-key record-usage]
+      {:get convert-time}]]]])
 
 ;; Consumed by tzone.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
