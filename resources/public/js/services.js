@@ -12,8 +12,11 @@ var convertServices = angular.module('convertServices', []);
 convertServices.factory('Convert', ['$http',
     function ($http) {
       return {
-        current: function(tzone) {
-          return $http.get('/convertCurrent?to=' + tzone + '&key=xxx');
+        current: function(to, key) {
+          return $http.get('/convertCurrent?to=' + to + '&key=' + key);
+        },
+        other: function(from, to, time, key) {
+          return $http.get('/convertTime?from= ' + from + '&to=' + to + '&time=' + time + '&key=' + key);
         }
       }
     }]);

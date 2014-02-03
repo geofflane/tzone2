@@ -8,7 +8,7 @@ tzoneControllers.controller('TzoneCtrl', ['$scope', 'TZone', 'Convert',
 
     $scope.$watch('tzone', function() {
       if ($scope.tzone) {
-        Convert.current($scope.tzone).success(function (data) {
+        Convert.current($scope.tzone, 'xxx').success(function (data) {
           $scope.currentTime = data;
         });
       } else {
