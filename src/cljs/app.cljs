@@ -11,7 +11,7 @@
   (doto $routeProvider
     (.when "/current" (obj :templateUrl "partials/current.html" :controller "CurrentCtrl"))
     (.when "/convert" (obj :templateUrl "partials/convert.html" :controller "ConvertCtrl"))
-    (.otherwise (obj :redirecTo "/current"))))
+    (.otherwise (obj :templateUrl "partials/index.html"))))
 
 (def.factory tzoneApp.TZone [$resource]
   ($resource "tzone"))
