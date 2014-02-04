@@ -21,9 +21,7 @@
        :other (fn [from to time key] ($http.get (str "/convertTime?to=" to "&from=" from "&time=" time "&key=" key)))))
 
 (def.controller tzoneApp.NavigationCtrl [$scope $location]
-  (! $scope.isCurrentPath  (fn [path]
-                             (js/console.log ($location.path) path (= ($location.path) path))
-                             (= ($location.path) path))))
+  (! $scope.isCurrentPath  (fn [path] (= ($location.path) path))))
 
 (def.controller tzoneApp.CurrentCtrl [$scope TZone Convert]
   (! $scope.tzones (TZone.query))
