@@ -1,0 +1,16 @@
+<div class="container-fluid">
+  <div class="row">
+    <form class="form-horizontal" role="form">
+
+      <div class="form-group">
+        <label for="tzone" class="control-label">Convert To TimeZone</label>
+        <input type="text" ng-model="tzone" typeahead="tz.tzone for tz in tzones | filter:$viewValue | limitTo:10" class="form-control">
+      </div>
+      <button ng-click="convert(tzone)">Convert</button>
+    </form>
+  </div>
+  <div class="row">
+    The time is: <strong>{{currentTime.time | date:"yyyy-MM-dd HH:mm:ss.sss"}}</strong> in <strong>{{currentTime.tz}}</strong>
+  </div>
+</div>
+
