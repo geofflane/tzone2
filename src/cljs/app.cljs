@@ -25,7 +25,7 @@
 (def.service tzoneApp.User [$http $cookieStore CookieName]
   ;; TODO: Remove "xxx" key when cookies are working
   (obj :cookie (fn [] (or ($cookieStore.get CookieName) {}))
-       :apikey  (fn [] (or (.-apikey (self.cookie)) "xxx"))
+       :apikey  (fn [] (.-apikey (self.cookie)))
        :username (fn [] (.-username (self.cookie)))
        :loggedin (fn [] (not (nil? (self.username))))
        :login (fn [user] ($http.post "/login" user))

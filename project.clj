@@ -11,6 +11,7 @@
                  ;; use Tomcat instead of Jetty:
                  [io.pedestal/pedestal.jetty "0.2.2"]
                  ;; [io.pedestal/pedestal.tomcat "0.2.2"]
+                 [com.datomic/datomic-free "0.9.4497"]
                  [clj-time "0.6.0"]
                  [im.chit/purnam "0.1.8"]
                  [org.clojure/clojurescript "0.0-2156"]]

@@ -1,10 +1,14 @@
 (ns tzone.auth
-  (:require [ring.util.response :as ring-response]
+  (:require [tzone.user :as usr]
+            [tzone.hash :as hash]
+            [ring.util.response :as ring-response]
             [io.pedestal.service.http :as bootstrap]
             [io.pedestal.service.interceptor :refer [defbefore]]
             [cheshire.core :as json]))
 
-(defn valid [apikey] (= "xxx" apikey))
+(defn valid [apikey]
+  (not (nil? (usr/validate-apikey apikey))))
+
 (defn stop-and-respond [context value]
   (assoc context :response (bootstrap/json-response value)))
 
@@ -25,9 +29,14 @@
     (println "ApiKey used: " apikey)
     context))
 
+(defn- password-match [dbuser check]
+  (= (hash/pbkdf2 check (:user/username dbuser)) (:user/password dbuser)))
+
 (defn- authenticate [username password]
-  ;; TODO: Implement this with a real DB
-  {:username username :apikey "xxx"})
+  (let [dbuser (usr/get-user username)]
+    (when-not (nil? dbuser)
+      (when (password-match dbuser password)
+        {:username username :apikey (:user/apikey dbuser)}))))
 
 
 (defn login [request]
