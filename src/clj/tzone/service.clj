@@ -1,82 +1,34 @@
 (ns tzone.service
-    (:require [io.pedestal.service.http :as bootstrap]
-              [io.pedestal.service.http.route :as route]
-              [io.pedestal.service.http.body-params :as body-params]
-              [io.pedestal.service.http.route.definition :refer [defroutes]]
-              [io.pedestal.service.interceptor :refer [defbefore]]
-              [io.pedestal.service.impl.interceptor :refer [terminate]]
-              [ring.util.response :as ring-resp]
-              [clj-time.core :as t]
-              [clj-time.format :as tf]
-              [clj-time.local :as tl]
-              [cheshire.core :refer :all]
-              [cheshire.generate :refer [add-encoder]]))
+  (:require [tzone.core :as core]
+            [tzone.auth :as auth]
+            [io.pedestal.service.http :as bootstrap]
+            [io.pedestal.service.http.route :as route]
+            [io.pedestal.service.http.body-params :as body-params]
+            [io.pedestal.service.http.route.definition :refer [defroutes]]
+            [io.pedestal.service.http.ring-middlewares :as middlewares]
+            [io.pedestal.service.interceptor :refer [definterceptor]]
+            [ring.middleware.session.cookie :as cookie]
+            [ring.util.response :as ring-resp]))
 
 (defn home-page
   [request]
   (ring-resp/redirect "index.html"))
 
-(def format-str "yyyy-MM-dd'T'HH:mm:ss.SSSS")
-
-(defn now-in-tz
-  [tz]
-  (t/to-time-zone (tl/local-now) tz))
-
-(defn time-str
-  [t tz]
-  (tf/unparse (tf/formatter format-str tz) t))
-
-(defn str-time
-  [t tz]
-  (tf/parse (tf/formatter format-str tz) t))
-
-(defn tzones [reques]
-  (bootstrap/json-response (map (fn [v] {"tzone" v}) (org.joda.time.DateTimeZone/getAvailableIDs))))
-
-(defn current-time
-  [{{:keys [to]} :params}]
-  (let [tz (t/time-zone-for-id to)
-        new-time (now-in-tz tz)]
-    (bootstrap/json-response {:tz to :time (time-str new-time tz)})))
-
-(defn convert-time
-  [{{:keys [to from time]} :params}]
-  (let [totz (t/time-zone-for-id to)
-        fromtz (t/time-zone-for-id from)
-        new-time (str-time time fromtz)]
-    (bootstrap/json-response {:tz to :time (time-str new-time totz)})))
-
-(defn valid [api-key] (= "xxx" api-key))
-(defn stop-and-respond [context value]
-  (assoc context :response value))
-
-;; (defn- api-key-for [context] (-> context :request :params :key))
-(defn- api-key-for [context] (get-in context [:request :params :key]))
-
-(defbefore with-api-key [context]
-  "Security interceptor"
-  (let [api-key (api-key-for context)]
-    (cond
-      (nil? api-key) (stop-and-respond context (bootstrap/json-response {:error "Must pass API key"}))
-      (not (valid api-key)) (stop-and-respond context (bootstrap/json-response {:error "Unknown API key"}))
-      :otherwise context)))
-
-(defbefore record-usage [context]
-  (let [api-key (api-key-for context)]
-    (println "ApiKey used: " api-key)
-    context))
+(definterceptor session-interceptor
+  (middlewares/session {:store (cookie/cookie-store)}))
 
 (defroutes routes
   [[["/" {:get home-page}
-     ;; Set default interceptors for /about and any other paths under /
-     ^:interceptors [(body-params/body-params) bootstrap/html-body]
-     ["/tzone" {:get tzones}]
+     Set default interceptors for any other paths under /
+     ^:interceptors [(body-params/body-params) bootstrap/json-body session-interceptor]
+     ["/tzone" {:get core/tzones}]
+     ["/login" {:post auth/login}]
      ["/convertCurrent"
-      ^:interceptors [with-api-key record-usage]
-      {:get current-time}]
+     ^:interceptors [auth/with-apikey auth/record-usage]
+     {:get core/current-time}]
      ["/convertTime"
-      ^:interceptors [with-api-key record-usage]
-      {:get convert-time}]]]])
+      ^:interceptors [auth/with-apikey auth/record-usage]
+      {:get core/convert-time}]]]])
 
 ;; Consumed by tzone.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure

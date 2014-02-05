@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.0/css/bootstrap.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-cookies.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-resource.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-route.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
@@ -30,6 +31,13 @@
         <li data-ng-class="{ active: isCurrentPath('/current') }"><a href="#/current">Current Time</a></li>
         <li data-ng-class="{ active: isCurrentPath('/convert') }"><a href="#/convert">Convert Time</a></li>
       </ul>
+
+      <div class="collapse navbar-collapse navbar-right"  data-ng-controller="AuthCtrl">
+        <ul class="nav navbar-nav">
+          <li data-ng-if="username"><a href="#" data-ng-click="logout()">Logout</a></li>
+          <li data-ng-if="!username"><a href="#" data-ng-click="open()">Login</a></li>
+        </ul>
+      </div>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
