@@ -44,5 +44,5 @@
   "Get a user by username"
   (let [user-id (find-user-id username)]
     (when-not (nil? user-id)
-     (when-let [user (d/entity (d/db (connect)) user-id)] 
+     (when-let [user (d/entity (d/db (connect)) user-id)]
        (d/touch user)))))
