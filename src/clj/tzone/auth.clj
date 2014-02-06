@@ -1,5 +1,6 @@
 (ns tzone.auth
   (:require [tzone.user :as usr]
+            [tzone.usage :as usage]
             [tzone.hash :as hash]
             [ring.util.response :as ring-response]
             [io.pedestal.service.http :as bootstrap]
@@ -24,9 +25,10 @@
       :otherwise context)))
 
 (defbefore record-usage [context]
-  (let [apikey (apikey-for context)]
-    ;; TODO: Implement this with a real DB
+  (let [apikey (apikey-for context)
+        service (str (get-in  context [:request :uri]) "?" (get-in context [:request :query-string]))]
     (println "ApiKey used: " apikey)
+    (usage/record-usage apikey service)
     context))
 
 (defn- password-match [dbuser check]

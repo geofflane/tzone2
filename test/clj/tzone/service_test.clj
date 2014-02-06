@@ -3,7 +3,8 @@
             [io.pedestal.service.test :refer :all]
             [io.pedestal.service.http :as bootstrap]
             [tzone.service :as service]
-            [tzone.user :as usr]))
+            [tzone.user :as usr]
+            [tzone.usage :as usage]))
 
 (def service
   (::bootstrap/service-fn (bootstrap/create-servlet service/service)))
@@ -20,11 +21,13 @@
       (is (not (re-matches #".*error.*" (:body response)))))))
 
 (deftest no-apikey-returns-error
-  (with-redefs [usr/validate-apikey (fn [apikey] nil)]
+  (with-redefs [usr/validate-apikey (fn [apikey] nil)
+                usage/record-usage (fn [apikey service] nil)]
     (let [response (response-for service :get "/convertCurrent?to=America/Chicago")]
       (is (= (:body response) "{\"error\":\"Must pass API key\"}")))))
 
 (deftest invalid-apikey-returns-error
-  (with-redefs [usr/validate-apikey (fn [apikey] nil)]
+  (with-redefs [usr/validate-apikey (fn [apikey] nil)
+                usage/record-usage (fn [apikey service] nil)]
     (let [response (response-for service :get "/convertCurrent?to=America/Chicago&key=foo")]
       (is (= (:body response) "{\"error\":\"Unknown API key\"}")))))
