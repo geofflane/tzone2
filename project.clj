@@ -15,7 +15,8 @@
                  [clj-time "0.6.0"]
                  [im.chit/purnam "0.1.8"]
                  [org.clojure/clojurescript "0.0-2156"]]
-  :plugins [[lein-cljsbuild "1.0.2"]]
+  :plugins [[lein-cljsbuild "1.0.2"]
+            [lein-cloverage "1.0.2"]]
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
   :source-paths ["src/clj"]
